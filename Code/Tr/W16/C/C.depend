@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1424937419 source:c:\users\thinkpad\desktop\w15\c\main.cpp
+	<iostream>
+	<cstdio>
+	<vector>
+	<algorithm>
+	<cstring>
+

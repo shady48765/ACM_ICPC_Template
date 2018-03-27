@@ -1,0 +1,24 @@
+bzoj 3653
+bzoj 3306
+AIZU 1308
+UVALive 5064
+
+sdwflqlsctlnddkdcdqj
+UVALive 6923
+圆桌上坐着编号1..n的人，然后重排列一次。如果一个人坐回原位，或者坐到原位相邻的位置，那么他是满意的。
+。每次给一个n<=2000 问有多少个重排列，满足至少k个人是满意的
+
+srm 619
+用二分图最小带权匹配来转移dp
+
+hdu 4622
+
+
+Unknown Treasure Lucas+CRT
+hdu 4767 crt bell
+
+
+implementation 
+
+
+604052575

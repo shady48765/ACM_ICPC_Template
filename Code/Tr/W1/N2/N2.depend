@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1421453891 source:c:\users\thinkpad\desktop\w1\n2\main.cpp
+	<cstdio>
+	<algorithm>
+	<queue>
+	<cstring>
+	<vector>
+

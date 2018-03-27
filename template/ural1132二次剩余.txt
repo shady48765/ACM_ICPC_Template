@@ -1,0 +1,87 @@
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <vector>
+#include <ctime>
+using namespace std;
+const int mod=1000000009;
+typedef long long LL;
+LL w;
+LL fpow(LL a,LL n,LL mod)
+{
+    LL res=1;
+    while(n){
+        if(n&1){
+            res=res*a%mod;
+        }
+        a=a*a%mod;
+        n>>=1;
+    }
+    return res;
+}
+LL legende(LL a,LL p)
+{
+    return fpow(a,(p-1)>>1,p);
+}
+typedef pair<LL,LL> pii;
+pii multi(pii A,pii B,LL mod)
+{
+    return make_pair((A.first*B.first%mod+A.second*B.second%mod*w%mod)%mod,(A.first*B.second%mod+B.first*A.second%mod)%mod);
+}
+pii fpow(pii A,LL n,LL p)
+{
+    pii res=make_pair(1,0);
+    while(n)
+    {
+        if(n&1){
+            res=multi(res,A,p);
+        }
+        A=multi(A,A,p);
+        n>>=1;
+    }
+    return res;
+}
+LL solve(LL n,LL p)
+{
+    if(p==2){
+        return 1;
+    }
+    if(legende(n,p)+1==p){
+        return -1;
+    }
+    srand(time(NULL));
+    while(1)
+    {
+        LL x=rand()%p;
+        w=((x*x-n)%p+p)%p;
+        if(legende(w,p)+1==p){
+            pii A=make_pair(x,1);
+            pii ans=fpow(A,(p+1)>>1,p);
+            return ans.first;
+        }
+    }
+}
+int main()
+{
+    int T;
+    scanf("%d", &T);
+    while(T--)
+    {
+        int n, p;
+        scanf("%d%d",&n,&p);
+        n %= p;
+        int a = solve(n, p);
+        if(a == -1)
+        {
+            puts("No root");
+            continue;
+        }
+        int b = p - a;
+        if(a > b) swap(a, b);
+        if(a == b)
+            printf("%d\n",a);
+        else
+            printf("%d %d\n",a,b);
+    }
+    return 0;
+}

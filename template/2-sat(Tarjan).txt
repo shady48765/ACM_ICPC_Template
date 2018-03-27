@@ -1,0 +1,67 @@
+#include <iostream>
+#include<cstdio>
+#include<algorithm>
+#include<cstring>
+#include<vector>
+using namespace std;
+const int maxn=1010;
+int n,m,t_deep,spos,t_cnt;
+int dfn[maxn],low[maxn],belong[maxn],stack[maxn],instack[maxn];
+vector<int> G[maxn];
+int out[maxn];
+void tarjan(int st)
+{
+	dfn[st] = low[st] = ++t_deep;
+	stack[++spos] = st;
+	instack[st] = 1;
+	int nt;
+	for(int i = 0; i < G[st].size(); i++)
+	{
+		nt = G[st][i];
+		if(!dfn[nt])
+		{
+			tarjan(nt);
+			low[st] = min(low[nt], low[st]);
+		}
+		else if(instack[st])
+			low[st] = min(dfn[nt], low[st]);
+	}
+	if(low[st] == dfn[st])
+	{
+		t_cnt++;
+		do
+		{
+			nt = stack[spos--];
+			instack[nt] = 0;
+			belong[nt] = t_cnt;
+		}while(nt != st);
+	}
+}
+void predeal()
+{
+    spos=-1;
+    t_cnt=t_deep=0;
+    memset(dfn,0,sizeof(dfn));
+    memset(instack,0,sizeof(instack));
+    memset(out,0,sizeof(out));
+    for(int i=1;i<=m;i++)
+        for(int j=i+1;j<=m;j++)
+    {
+        if(check(node[i],node[j]))
+        {
+            G[i].push_back(j+m);
+            G[j].push_back(i+m);
+            G[i+m].push_back(j);
+            G[j+m].push_back(i);
+        }
+    }
+}
+bool solve()
+{
+    for(int i=1;i<=2*m;i++)
+        if(!dfn[i]) tarjan(i);
+    for(int i=1;i<=m;i++)
+        if(belong[i]==belong[i+m])
+        return false;
+    return true;
+}

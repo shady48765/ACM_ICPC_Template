@@ -1,0 +1,43 @@
+ll exp(ll a, ll b, ll c)
+{
+    ll ans = 1, num = a%c;
+    while (b != 0)
+    {
+        if (b % 2 == 1)
+            ans = (ans * num) % c;
+        num = (num * num) % c;
+        b = b / 2;
+    }
+    return ans;
+}
+ll findPrimitiveRoot(ll p)
+{
+    if (p==2) return 1;
+    int cnt = 0, num = p - 1;
+    for (int i = 0; prime[i] <= (p - 1) / prime[i]; i++)
+    {
+        if (num % prime[i] == 0)
+        {
+            yz[cnt++] = prime[i];
+            while (num % prime[i] == 0)
+                num /= prime[i];
+            if (num == 1)
+                break;
+        }
+    }
+    if (num != 1)
+        yz[cnt++] = num;
+    for (ll i = 2; i <= p - 1; i++)
+    {
+        bool find = true;
+        for (int j = 0; j < cnt; j++)
+            if (exp(i, (p - 1) / yz[j], p) == 1)
+            {
+                find = false;
+                break;
+            }
+        if (find)
+            return i;
+    }
+    return -1;
+}

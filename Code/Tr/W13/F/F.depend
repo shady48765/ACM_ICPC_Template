@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1423728890 source:c:\users\thinkpad\desktop\w13\f\main.cpp
+	<cstdio>
+	<cmath>
+	<algorithm>
+

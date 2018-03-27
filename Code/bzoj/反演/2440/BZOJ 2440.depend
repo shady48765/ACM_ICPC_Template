@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1425534035 source:c:\users\thinkpad\desktop\bzoj 2440\main.cpp
+	<cstdio>
+	<algorithm>
+	<iostream>
+

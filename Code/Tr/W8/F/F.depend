@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1422346944 source:c:\users\thinkpad\desktop\w8\f\main.cpp
+	<cstdio>
+	<queue>
+	<cstring>
+

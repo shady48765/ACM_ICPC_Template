@@ -1,0 +1,155 @@
+直线下点的个数
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+#include<algorithm>
+using namespace std;
+
+long long count (long long n, long long a, long long b, long long m) {
+        if (b == 0) {
+                return n * (a / m);
+        }
+        if (a >= m) {
+                return n * (a / m) + count(n, a % m, b, m);
+        }
+        if (b >= m) {
+                return (n - 1) * n / 2 * (b / m) + count(n, a, b % m, m);
+        }
+        return count((a + b * n) / m, (a + b * n) % m, m, b);
+}
+
+int main() {
+        long long a, b, c;//ax+by<=c
+        cin >> a >> b >> c;
+        cout << count(c / a + 1, c % a, a, b) + c / a + 1 << endl;
+        return 0;
+}
+
+树 hash
+#include<vector>
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+#include<algorithm>
+using namespace std;
+
+const int N = 500005;
+
+int n;
+
+vector<int> edge[N];
+
+int size[N], mc[N], minmc;
+
+void dfs(int u, int fa) {
+        size[u] = 1;
+        mc[u] = 0;
+        for (int i = 0; i < (int)edge[u].size(); ++i) {
+                int v = edge[u][i];
+                if (v == fa) {
+                        continue;
+                }
+                dfs(v, u);
+                size[u] += size[v];
+                mc[u] = max(mc[u], size[v]);
+        }
+        mc[u] = max(mc[u], n - size[u]);
+        minmc = min(minmc, mc[u]);
+}
+
+const int MOD = 1000000007;
+
+int h[N], p[N];
+
+int s[N], f[N];
+
+bool cmp(const int &i, const int &j) {
+        if (h[i] != h[j]) {
+                return h[i] < h[j];
+        }
+        if (s[i] != s[j]) {
+                return s[i] < s[j];
+        }
+        if (f[i] != f[j]) {
+                return f[i] < f[j];
+        }
+        return i < j;
+}
+
+void solve(int u, int fa) {
+        if (edge[u].size() == 1) {
+                f[u] = 1;
+                s[u] = 1;
+                h[u] = 2;
+                p[u] = 4;
+        } else {
+                vector<int> ch;
+                for (int i = 0; i < (int)edge[u].size(); ++i) {
+                        int v = edge[u][i];
+                        if (v == fa) {
+                                continue;
+                        }
+                        solve(v, u);
+                        ch.push_back(v);
+                }
+                sort(ch.begin(), ch.end(), cmp);
+                s[u] = 1;
+                h[u] = 1;
+                p[u] = 2;
+                for (int i = 0; i < (int)ch.size(); ++i) {
+                        int v = ch[i];
+                        s[u] += s[v];
+                        h[u] = ((long long)h[u] * p[v] + h[v]) % MOD;
+                        p[u] = (long long)p[u] * p[v] % MOD;
+                }
+                h[u] = h[u] * 2 % MOD;
+                p[u] = p[u] * 2 % MOD;
+                f[u] = 1;
+                for (int i = 0; i < (int)ch.size(); ++i) {
+                        int j = i;
+                        while (j < (int)ch.size() && h[ch[j]] == h[ch[i]] && s[ch[j]] == s[ch[i]] && f[ch[j]] == f[ch[i]]) {
+                                ++j;
+                        }
+                        int cnt = j - i;
+                        for (int k = 1; k <= cnt; ++k) {
+                                f[u] = (long long)f[u] * k % MOD * f[ch[i]] % MOD;
+                        }
+                        i = j - 1;
+                }
+        }
+}
+
+int main() {
+        scanf("%d", &n);
+        for (int i = 1; i < n; ++i) {
+                int u, v;
+                scanf("%d%d", &u, &v);
+                --u, --v;
+                edge[u].push_back(v);
+                edge[v].push_back(u);
+        }
+        minmc = n;
+        dfs(0, -1);
+        vector<int> gc;
+        for (int i = 0; i < n; ++i) {
+                if (mc[i] == minmc) {
+                        gc.push_back(i);
+                }
+        }
+        int root;
+        if (gc.size() == 1) {
+                root = gc[0];
+        } else {
+                root = n;
+                int u = gc[0], v = gc[1];
+                edge[u].erase(find(edge[u].begin(), edge[u].end(), v));
+                edge[v].erase(find(edge[v].begin(), edge[v].end(), u));
+                edge[root].push_back(u);
+                edge[u].push_back(root);
+                edge[root].push_back(v);
+                edge[v].push_back(root);
+        }
+        solve(root, -1);
+        printf("%d\n", f[root]);
+        return 0;
+}

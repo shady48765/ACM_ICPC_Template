@@ -1,0 +1,115 @@
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <queue>
+#define maxn 40005
+#define maxx 500
+#define inf 1000000000
+using namespace std;
+
+struct edge
+{
+    int from,to,cap,flow;
+    double cost;
+    edge(int from_,int to_,int cap_,int flow_,double cost_)
+    {
+        from=from_,to=to_,cap=cap_,flow=flow_,cost=cost_;
+    }
+};
+
+struct MCMF
+{
+    int n,m,s,t;
+    int flow;
+    double cost;
+    vector<edge> edges;
+    vector<int> g[maxx];
+    int inq[maxx];
+    double d[maxx];
+    int p[maxn];
+    int a[maxx];
+    queue<int> q;
+
+    void init(int n_,int s_,int t_)
+    {
+        int i;
+        s=s_;
+        t=t_;
+        n=n_;
+        for(i=0; i<=t; i++)
+        {
+            g[i].clear();
+        }
+        edges.clear();
+    }
+
+    void addedge(int from,int to,int cap,double cost)
+    {
+        edges.push_back(edge(from,to,cap,0,cost));
+        edges.push_back(edge(to,from,0,0,-cost));
+        m=edges.size();
+        g[from].push_back(m-2);
+        g[to].push_back(m-1);
+    }
+
+    bool spfa()
+    {
+        int i,j;
+        memset(inq,0,sizeof(inq));
+        for(i=0; i<=n; i++)
+        {
+            d[i]=(inf)*1.0;
+        }
+        while(!q.empty())
+        {
+            q.pop();
+        }
+        d[s]=0.0;
+        inq[s]=true;
+        q.push(s);
+        a[s]=inf;
+        while(!q.empty())
+        {
+            int u=q.front();
+            q.pop();
+            inq[u]=false;
+            for(i=0; i<g[u].size(); i++)
+            {
+                edge& e=edges[g[u][i]];
+                if(e.cap>e.flow&&d[e.to]>d[u]+e.cost)//最大费用流
+                {
+                    d[e.to]=d[u]+e.cost;
+                    p[e.to]=g[u][i];
+                    a[e.to]=min(a[u],e.cap-e.flow);
+                    if(!inq[e.to])
+                    {
+                        q.push(e.to);
+                        inq[e.to]=1;
+                    }
+                }
+            }
+        }
+        if(d[t]==(inf)*1.0)
+        {
+            return false;
+        }
+        flow+=a[t];
+        cost+=d[t]*a[t];
+        int u=t;
+        while(u!=s)
+        {
+            edges[p[u]].flow+=a[t];
+            edges[p[u]^1].flow-=a[t];
+            u=edges[p[u]].from;
+        }
+        return true;
+    }
+
+    double Mincost()
+    {
+        flow=0;//最大流
+        cost=0;//最小费用
+        while(spfa());
+        return cost;
+    };
+};

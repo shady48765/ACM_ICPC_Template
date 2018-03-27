@@ -1,0 +1,2 @@
+http://www.topcoder.com/tc?d1=match_editorials&d2=archive&module=Static
+http://apps.topcoder.com/wiki/display/tc/Algorithm+Problem+Set+Analysis

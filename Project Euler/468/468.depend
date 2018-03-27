@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1449291296 source:c:\users\thinkpad\desktop\project euler\468\main.cpp
+	<iostream>
+	<cstdio>
+	<cstring>
+	<vector>
+

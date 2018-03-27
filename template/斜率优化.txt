@@ -1,0 +1,82 @@
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+const int N = 4000 + 10;
+const long long INF = 1000000000000LL;
+
+struct Queue
+{
+        int qh, qt;
+        long long y[N];
+        int x[N];
+        Queue() {
+                qh = qt = 0;
+        }
+        long long getValue(long long c) {
+                if (qh == qt) return -INF;
+                for( ; qh + 1 < qt; ) {
+                        if (y[qh] + 2 * x[qh] * c < y[qh + 1] + 2 * x[qh + 1] * c) {
+                                ++ qh;
+                        } else {
+                                break;
+                        }
+                }
+                return y[qh] + 2 * x[qh] * c;
+        }
+        void push(long long v, long long c) {
+                if (qh < qt && x[qt - 1] == c) {
+                        if (y[qt - 1] >= v) return;
+                        qt --;
+                }
+                for( ; qh + 1 < qt; ) {
+                        if ((y[qt - 2] - y[qt - 1]) * (x[qt - 1] - c) < (y[qt - 1] - v) * (x[qt - 2] - x[qt - 1])) { //?
+                                qt --;
+                        } else {
+                                break;
+                        }
+                }
+                x[qt] = c;
+                y[qt ++] = v;
+                return;
+        }
+};
+
+int n, t;
+int length[N], p[N], feature[N];
+Queue que[N];
+
+inline int cmp(const int &a, const int &b)
+{
+        return feature[a] < feature[b];
+}
+
+void solve()
+{
+        cin >> n >> t;
+        vector<int> order;
+        for(int i = 0; i < n; ++ i) {
+                order.push_back(i);
+                scanf("%d%d%d", length + i, p + i, feature + i);
+        }
+        sort(order.begin(), order.end(), cmp);
+        long long ret = 0;
+        for(int _ = 0; _ < n; ++ _) {
+                int i = order[_];
+                for(int j = t; j >= length[i]; -- j) {
+                        long long value = max((long long)p[i], p[i] - (long long)feature[i] * feature[i] + que[j - length[i]].getValue(feature[i]));
+                        que[j].push(value - (long long)feature[i] * feature[i], feature[i]);
+                        ret = max(ret, value);
+                }
+        }
+        cout << ret << endl;
+}
+
+int main()
+{
+        solve();
+        return 0;
+}

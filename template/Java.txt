@@ -1,0 +1,78 @@
+import java.math.*;
+import java.util.*;
+
+public class Main
+{
+	static HashMap<BigInteger,BigInteger> mp=new HashMap<BigInteger,BigInteger>();
+	static BigInteger b2=BigInteger.valueOf(2);
+	static BigInteger b1=BigInteger.valueOf(1);
+	static BigInteger nb6=BigInteger.valueOf(-6);
+	static BigInteger b4=BigInteger.valueOf(4);
+	static BigInteger b3=BigInteger.valueOf(3);
+	public static BigInteger zhizhi(BigInteger n){
+		if(mp.containsKey(n)) return mp.get(n);
+		BigInteger ans=n.add(b3).divide(b2).add(zhizhi(n.add(nb6).divide(b4)));
+		mp.put(n, ans);
+		return ans;
+	}
+		
+	public static void main(String[] args){
+		mp.put(b1,b1);mp.put(b2,b2);mp.put(b3,b3);mp.put(b4,b3);mp.put(BigInteger.valueOf(5),b4);
+		mp.put(BigInteger.valueOf(0),BigInteger.valueOf(0));
+		Scanner s=new Scanner(System.in);
+		while(s.hasNextBigInteger()){
+			BigInteger t=s.nextBigInteger();
+			System.out.println(zhizhi(t));
+		}
+	}
+}
+
+//package first;
+import java.util.*;
+import java.math.*;
+import java.io.*;
+
+public class Main {
+	public static BigInteger Gx(int x)
+	{
+		x=x*(x-1)/2;
+		BigInteger a=BigInteger.valueOf(2);
+		a=a.pow(x);
+		return a;
+	}
+	public static BigInteger C(int n,int m)
+	{
+		BigInteger a=BigInteger.valueOf(1);
+		for(int i=1;i<=m;i++) a=a.multiply(BigInteger.valueOf(i));
+		for(int i=1;i<=n;i++) a=a.divide(BigInteger.valueOf(i));
+		for(int i=1;i<=m-n;i++) a=a.divide(BigInteger.valueOf(i));
+		return a;
+	}
+	public static void main(String[] a) throws IOException
+	{
+		Scanner Input=new Scanner(new File("trains.in"));
+		PrintStream out = new PrintStream(new File("trains.out"));
+		BigInteger F[]=new BigInteger[105];
+		BigInteger G[]=new BigInteger[105];
+		for(int i=0;i<=101;i++) G[i]=Gx(i);
+		F[0]=BigInteger.valueOf(1);
+		F[1]=BigInteger.valueOf(0);
+		for(int i=2;i<=100;i++)
+		{
+			F[i]=G[i];
+			BigInteger temp=BigInteger.valueOf(0);
+			//c(k-1,i-1)*f[k]G[i-k]=G[i];
+			for(int j=1;j<=i;j++)
+			{
+				temp=temp.add(C(j,i).multiply(F[i-j]));
+			}
+			F[i]=F[i].add(temp.negate());
+		}
+		int n;
+		//Scanner Input=new Scanner(System.in);
+		
+		n=Input.nextInt();
+		out.println(F[n]);
+		//System.out.println(F[n]);
+	}
+}

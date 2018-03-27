@@ -1,0 +1,114 @@
+#include <iostream>
+#include<cstdio>
+#include<vector>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+const int maxn=100010;
+int W,H,n,m;
+int x[maxn][2],y[maxn][2];
+struct segtree
+{
+    int n;
+    int p[maxn<<1],tag[maxn<<2];
+    long long val[maxn<<2];
+    void init(int n,int A[])
+    {
+        this->n=n;
+        for(int i=0;i<n;i++) p[i]=A[i];
+        memset(tag,0,sizeof(tag));
+        memset(val,0,sizeof(val));
+    }
+    void update(int o,int l,int r,int L,int R,int d)
+    {
+        if(L<=l&&r<=R)
+        {
+            tag[o]+=d;
+            if(tag[o]==0)
+            {
+                if(l==r)
+                    val[o]=0;
+                else
+                    val[o]=val[o<<1]+val[o<<1|1];
+            }
+            else
+                val[o]=p[r]-p[l-1];
+        }
+        else
+        {
+            int mid=(l+r)>>1;
+            if(L<=mid)
+                update(o<<1,l,mid,L,R,d);
+            if(R>mid)
+                update(o<<1|1,mid+1,r,L,R,d);
+            if(tag[o]==0)
+            {
+                if(l==r)
+                    val[o]=0;
+                else
+                    val[o]=val[o<<1]+val[o<<1|1];
+            }
+            else
+                val[o]=p[r]-p[l-1];
+        }
+    }
+    long long top()
+    {
+        return val[1];
+    }
+}T;
+struct seg
+{
+    int l,r,d,x;
+    seg(){}
+    seg(int l,int r,int d,int x):l(l),r(r),d(d),x(x){}
+    bool operator<(const seg& rhs ) const
+    {
+        return x<rhs.x||(x==rhs.x&&d<rhs.d);
+    }
+}Seg[maxn<<1];
+int uniq[maxn<<1];
+long long solve(int X[][2],int Y[][2],int W,int H)
+{
+    int cnt=0,cc=0;
+    for(int i=1;i<=n;i++)
+    {
+        Seg[cnt++]=seg(Y[i][0],Y[i][1]+1,1,max(0,X[i][0]-m));
+        Seg[cnt++]=seg(Y[i][0],Y[i][1]+1,-1,X[i][1]);
+        uniq[cc++]=Y[i][0];
+        uniq[cc++]=Y[i][1]+1;
+    }
+    Seg[cnt++]=seg(1,H+1,1,max(W-m+1,0));
+    Seg[cnt++]=seg(1,H+1,-1,W);
+    uniq[cc++]=1;uniq[cc++]=H+1;
+    sort(uniq,uniq+cc);
+    sort(Seg,Seg+cnt);
+
+    cc=unique(uniq,uniq+cc)-uniq;
+    long long res=0;
+    T.init(cc,uniq);
+    int last=0;
+    for(int i=0;i<cnt;i++)
+    {
+        res+=1LL*T.top()*(Seg[i].x-last);
+        last=Seg[i].x;
+        T.update(1,0,cc-1,1+lower_bound(uniq,uniq+cc,Seg[i].l)-uniq,lower_bound(uniq,uniq+cc,Seg[i].r)-uniq,Seg[i].d);
+    }
+    return 1LL*W*H-res;
+}
+int main()
+{
+    //freopen("data.in","r",stdin);
+    while(scanf("%d%d%d%d",&W,&H,&n,&m)!=EOF)
+    {
+        for(int i=1;i<=n;i++) scanf("%d%d%d%d",&x[i][0],&y[i][0],&x[i][1],&y[i][1]);
+        long long ans=0;
+        if(m==1)
+        {
+            ans=solve(x,y,W,H);
+        }
+        else ans=solve(x,y,W,H)+solve(y,x,H,W);
+        printf("%lld\n",ans);
+    }
+    return 0;
+}

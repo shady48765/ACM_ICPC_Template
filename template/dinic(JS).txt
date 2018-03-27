@@ -1,0 +1,80 @@
+#include<cstdio>
+#include<iostream>
+#include<vector>
+#include<map>
+#include<queue>
+#include<algorithm>
+#include<string.h>
+#include<math.h>
+#define INF 1<<30
+#define N 222
+using namespace std;
+struct Edge
+{
+    int u,v,next;
+    int c;
+}edge[10*N];
+int n,m,em,head[N],d[N],s,t;
+void init()
+{
+    memset(head,-1,sizeof(head));
+    em=0;
+}
+void add(int a,int b,int c)
+{
+    edge[em].u=a;edge[em].v=b;edge[em].c=c;
+    edge[em].next=head[a];head[a]=em++;
+    edge[em].u=b;edge[em].v=a;edge[em].c=0;
+    edge[em].next=head[b];head[b]=em++;
+}
+int bfs()
+{
+    queue<int> q;
+    memset(d,-1,sizeof(d));
+    d[s]=0;q.push(s);
+    while(!q.empty())
+    {
+        int cur=q.front();
+        q.pop();
+        for(int i=head[cur];i!=-1;i=edge[i].next)
+        {
+            int u=edge[i].v;
+            if(d[u]==-1&&edge[i].c>0)
+            {
+                d[u]=d[cur]+1;
+                q.push(u);
+            }
+        }
+    }
+    return d[t]!=-1;
+
+}
+int dfs(int a,int b)
+{
+    int f=0;
+    if(a==t) return b;
+    for(int i=head[a];i!=-1&&f<b;i=edge[i].next)
+    {
+        int u=edge[i].v;
+        if(edge[i].c>0&&d[u]==d[a]+1)
+        {
+            int x=min(edge[i].c,b-f);
+            x=dfs(u,x);f+=x;
+            edge[i].c-=x;
+            edge[i^1].c+=x;
+        }
+    }
+    if(!f) d[a]=-2;
+    return f;
+}
+int dinic(int ss,int tt)
+{
+    s=ss;t=tt;
+    int ans=0,g;
+    while(bfs())
+    {
+        while((g=dfs(ss,INF)))
+        ans+=g;
+    }
+    return ans;
+}

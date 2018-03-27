@@ -1,0 +1,90 @@
+#include <iostream>
+#include<cstdio>
+#include<algorithm>
+#include<vector>
+using namespace std;
+const int maxn=300010;
+struct _node
+{
+    int ls,rs;
+    long long val;
+}node[maxn*100];
+vector<int> G[maxn];
+int n,q,u,v,cnt,tot,x,y;
+int dep[maxn],siz[maxn],num[maxn],dfn[maxn],L[maxn],R[maxn];
+void dfs(int u,int fa)
+{
+    ++cnt;
+    dfn[cnt]=u;
+    L[u]=cnt;
+    for(int i=0;i<G[u].size();i++)
+    {
+        int v=G[u][i];
+        if(v==fa) continue;
+        dep[v]=dep[u]+1;
+        dfs(v,u);
+        siz[u]+=siz[v]+1;
+    }
+    R[u]=cnt;
+}
+int root[maxn];
+int build(int last,int l,int r,int pos,int v)
+{
+    if(l==r)
+    {
+        int k=++tot;
+        node[k].val=node[last].val+v;
+        return k;
+    }
+    else
+    {
+        int mid=(l+r)>>1;
+        int k=++tot;
+        if(pos<=mid)
+            node[k].ls=build(node[last].ls,l,mid,pos,v),node[k].rs=node[last].rs;
+        else if(pos>mid)
+            node[k].rs=build(node[last].rs,mid+1,r,pos,v),node[k].ls=node[last].ls;
+        node[k].val=node[node[k].ls].val+node[node[k].rs].val;
+        return k;
+    }
+}
+long long query(int root,int l,int r,int L,int R)
+{
+    if(L<=l&&r<=R)
+    {
+        return node[root].val;
+    }
+    else
+    {
+        int mid=(l+r)>>1;
+        long long res=0;
+        if(L<=mid&&node[root].ls)
+            res+=query(node[root].ls,l,mid,L,R);
+        if(R>mid&&node[root].rs)
+            res+=query(node[root].rs,mid+1,r,L,R);
+        return res;
+    }
+}
+int main()
+{
+    //freopen("data.in","r",stdin);
+    scanf("%d%d",&n,&q);
+    for(int i=1;i<=n-1;i++)
+    {
+        scanf("%d%d",&u,&v);
+        G[u].push_back(v);
+        G[v].push_back(u);
+    }
+    dfs(1,-1);
+    int maxdep=0;
+    for(int i=1;i<=n;i++) maxdep=max(maxdep,dep[i]);
+    for(int i=1;i<=n;i++)
+        root[i]=build(root[i-1],0,maxdep,dep[dfn[i]],siz[dfn[i]]);
+    while(q--)
+    {
+        scanf("%d%d",&x,&y);
+        long long res=(long long)min(y,dep[x])*siz[x]+query(root[R[x]],0,maxdep,dep[x],dep[x]+y)-query(root[L[x]],0,maxdep,dep[x],dep[x]+y);
+        printf("%lld\n",res);
+    }
+    return 0;
+}

@@ -1,0 +1,74 @@
+#include <iostream>
+#include<algorithm>
+#include<cmath>
+#include<cstdio>
+#include<cstring>
+using namespace std;
+const double pi=4*atan(1.0);
+const int N=400004;
+struct Complex
+{
+    double re,im;
+    Complex(double re=0,double im=0):re(re),im(im){}
+    Complex operator* (Complex rhs){return Complex(re*rhs.re-im*rhs.im,re*rhs.im+im*rhs.re);}
+    Complex operator+ (Complex rhs){return Complex(re+rhs.re,im+rhs.im);}
+    Complex operator- (Complex rhs){return Complex(re-rhs.re,im-rhs.im);}
+};
+void FFT(Complex f[],int len,int on)
+{
+    for(int i=1,j=len/2;i<len-1;i++)
+    {
+        if(i<j) swap(f[i],f[j]);
+        int k=len/2;
+        while(j>=k)
+        {
+            j-=k;k>>=1;
+        }
+        if(j<k) j+=k;
+    }
+    for(int i=2;i<=len;i<<=1)
+    {
+        Complex wn(cos(-on*2*pi/i),sin(-on*2*pi/i));
+        for(int j=0;j<len;j+=i)
+        {
+            Complex w(1,0);
+            for(int k=j;k<j+i/2;k++)
+            {
+                Complex u=f[k],t=w*f[k+i/2];
+                f[k]=u+t;
+                f[k+i/2]=u-t;
+                w=w*wn;
+            }
+        }
+    }
+    if(on==-1)
+    for(int i=0;i<len;i++)
+    f[i].re/=len;
+}
+Complex f1[N];
+int sum[N];
+char s[100005];
+int main()
+{
+    freopen("duel.in","r",stdin);
+    freopen("duel.out","w",stdout);
+    scanf("%s",s);
+    int len=strlen(s);
+    for(int i=0;i<len;i++) f1[i]=Complex(s[i]-'0',0);
+    int tot=1;
+    while(tot<len) tot<<=1;
+    tot<<=1;
+    for(int i=len;i<tot;i++) f1[i]=Complex(0,0);
+    FFT(f1,tot,1);
+    for(int i=0;i<tot;i++) f1[i]=f1[i]*f1[i];
+    FFT(f1,tot,-1);
+    long long res=0;
+    for(int i=0;i<tot;i++) sum[i]=(int)(f1[i].re+0.5);
+    for(int i=0;i<len;i++){
+        if(s[i]=='1')
+        res+=sum[i*2]-1;
+    }
+    res/=2;
+    cout<<res<<endl;
+    return 0;
+}

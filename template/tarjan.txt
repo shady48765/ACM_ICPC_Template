@@ -1,0 +1,29 @@
+int dfs(int u,int fa)
+{
+    int lowu=pre[u]=++dfs_clock;
+    int child=0;
+    for(int i=0;i<G[u].size();i++)
+    {
+        int v=G[u][i];
+        if(!tag[v]) continue;
+        if(!pre[v])
+        {
+            Ans[u]++;
+            child++;
+            int lowv=dfs(v,u);
+            lowu=min(lowu,lowv);
+            if(lowv>=pre[u])
+            {
+                iscut[u]=true;
+            }
+	    else Ans[u]--;
+        }
+        else if(pre[v]<pre[u]&&v!=fa)
+        {
+            lowu=min(lowu,pre[v]);
+        }
+    }
+    if(fa<0&&child==1) iscut[u]=false;
+    low[u]=lowu;
+    return lowu;
+}

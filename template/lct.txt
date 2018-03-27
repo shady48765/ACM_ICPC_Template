@@ -1,0 +1,237 @@
+#include <iostream>
+#include<cstdio>
+#include<cstring>
+#include<set>
+#include<vector>
+#include<algorithm>
+using namespace std;
+typedef long long LL;
+const int N=100005;
+const int INF=0x3f3f3f3f;
+int tot=0;
+struct Link_Cut_Tree
+{
+    int pre[N],ch[N][2],bef[N];
+    bool rev[N];
+    int val[N],mi[N];
+    void init()
+    {
+        memset(pre,0,sizeof(pre));
+        memset(ch,0,sizeof(ch));
+        memset(bef,0,sizeof(bef));
+        memset(rev,0,sizeof(rev));
+        mi[0]=val[0]=INF;
+    }
+    void Rev(int x)
+    {
+        if(!x) return ;
+        swap(ch[x][0],ch[x][1]);
+        rev[x]^=1;
+    }
+    void push_down(int x)
+    {
+        if(!rev[x]) return ;
+        Rev(ch[x][0]);
+        Rev(ch[x][1]);
+        rev[x]=0;
+    }
+    void P(int x)
+    {
+        if(pre[x]) P(pre[x]);
+        push_down(x);
+    }
+    void push_up(int x)
+    {
+        //++tot;
+        mi[x]=min(val[x],min(mi[ch[x][0]],mi[ch[x][1]]));
+    }
+    void Rotate(int x,bool kind)
+    {
+        int y=pre[x];
+        ch[y][!kind]=ch[x][kind];
+        pre[ch[x][kind]]=y;
+        pre[x]=pre[y];
+        if(pre[x]) ch[pre[x]][ch[pre[x]][1]==y]=x;
+        ch[x][kind]=y;
+        pre[y]=x;
+        push_up(y);
+    }
+    void Splay(int x)
+    {
+        P(x);
+        int rt=x;
+        for(;pre[rt];rt=pre[rt]);
+        if(rt!=x){
+            bef[x]=bef[rt];
+            bef[rt]=0;
+            while(pre[x]) Rotate(x,ch[pre[x]][0]==x);
+        }
+        push_up(x);
+    }
+    void Access(int x){
+        int fa=0;
+        for(;x;x=bef[x]){
+            Splay(x);
+            bef[ch[x][1]]=x;
+            bef[fa]=0;
+            pre[ch[x][1]]=0;
+            ch[x][1]=fa;
+            pre[fa]=x;
+            fa=x;
+            push_up(x);
+        }
+    }
+    void make_rt(int x)
+    {
+        Access(x);
+        Splay(x);
+        Rev(x);
+    }
+    void cut(int u,int v)
+    {
+        make_rt(u);
+        Access(v);
+        Splay(v);
+        pre[ch[v][0]]=0;
+        ch[v][0]=0;
+        push_up(v);
+    }
+    void link(int u,int v)
+    {
+        make_rt(v);
+        bef[v]=u;
+    }
+    int query(int x,int y)
+    {
+        Access(y);
+        for(y=0;x;x=bef[x])
+        {
+            Splay(x);
+            if(!bef[x]) return min(val[x],min(mi[y],mi[ch[x][1]]));
+            bef[ch[x][1]]=x;
+            bef[y]=0;
+            pre[ch[x][1]]=0;
+            ch[x][1]=y;
+            pre[y]=x;
+            y=x;
+            push_up(x);
+        }
+    }
+    int get_rt(int x)
+    {
+        Access(x);
+        Splay(x);
+        push_down(x);
+        while(ch[x][0])
+        {
+            x=ch[x][0];
+            push_down(x);
+        }
+        return x;
+    }
+}lct;
+struct Edge{
+    int u,v,w,id;
+    bool operator<(const Edge& rhs) const
+    {
+        return w<rhs.w;
+    }
+}e[N];
+set<int> st;
+int F[N];
+int findroot(int x){
+    return F[x]==x?x:F[x]=findroot(F[x]);
+}
+vector<int> ans,G[N];
+int que[N],pre[N];
+void bfs(){
+    int fr=0,re=0;
+    que[re++]=1;
+    pre[1]=-1;
+    while(fr!=re){
+        int u=que[fr++];
+        for(int i=0;i<G[u].size();i++)
+        {
+            int v=G[u][i];
+            if(pre[v]) continue;
+            pre[v]=u;
+            lct.bef[v]=u;
+            que[re++]=v;
+        }
+    }
+}
+int main()
+{
+    int n,m;
+    scanf("%d%d",&n,&m);
+    for(int i=0;i<m;i++)
+    {
+        scanf("%d%d%d",&e[i].u,&e[i].v,&e[i].w);
+        e[i].id=i+1;
+    }
+    sort(e,e+m);
+    lct.init();
+    for(int i=1;i<=n;i++)
+    {
+        lct.val[i]=lct.mi[i]=INF;
+    }
+    for(int i=0;i<m;i++)
+    {
+        lct.val[n+i+1]=lct.mi[n+i+1]=i;
+    }
+    for(int i=1;i<=n;i++) F[i]=i;
+    int p,cnt=0;
+    for(int i=0;i<m;i++)
+    {
+        if(findroot(e[i].u)==findroot(e[i].v)) continue;
+        F[findroot(e[i].u)]=findroot(e[i].v);
+        if(++cnt==n-1)
+        {
+            p=i;
+            break;
+        }
+    }
+    for(int i=1;i<=n;i++) F[i]=i;
+    for(int i=p;i>=0;--i)
+    {
+        if(findroot(e[i].u)==findroot(e[i].v)) continue;
+        st.insert(i);
+        F[findroot(e[i].u)]=findroot(e[i].v);
+        G[e[i].u].push_back(i+1+n);
+        G[e[i].v].push_back(i+1+n);
+        G[i+1+n].push_back(e[i].u);
+        G[i+1+n].push_back(e[i].v);
+    }bfs();
+    int ansval=e[p].w-e[*st.begin()].w,ansidx=p;
+    for(int i=p+1;ansval&&i<m;i++)
+    {
+        //if(tot>20000000) break;
+        int u=e[i].u,v=e[i].v;
+        int idx=lct.query(u,v);
+        st.erase(idx);
+        lct.cut(idx+1+n,e[idx].u);
+        lct.cut(idx+1+n,e[idx].v);
+        st.insert(i);
+        lct.link(e[i].u,i+1+n);
+        lct.link(e[i].v,i+1+n);
+        v=e[i].w-e[*st.begin()].w;
+        if(v<ansval)
+        {
+            ansval=v;
+            ansidx=i;
+        }
+    }
+    for(int i=1;i<=n;i++) F[i]=i;
+    cnt=0;
+    for(int i=ansidx;i>=0;--i){
+        if(findroot(e[i].u)==findroot(e[i].v)) continue;
+        F[findroot(e[i].u)]=findroot(e[i].v);
+        ans.push_back(e[i].id);
+        if(++cnt==n-1) break;
+    }
+    for(int i=ans.size()-1;i>=0;i--)
+    {
+        printf("%d%c",ans[i],i?' ':'\n');
+    }
+    return 0;
+}

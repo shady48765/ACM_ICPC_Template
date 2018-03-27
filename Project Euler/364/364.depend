@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1449216896 source:c:\users\thinkpad\desktop\project euler\364\main.cpp
+	<iostream>
+	<cstring>
+
