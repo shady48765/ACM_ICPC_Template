@@ -14,7 +14,7 @@ int main()
         }
         memset(vis,0,sizeof(vis));
         vis[root]=1;q[tail=1]=root;head=0;
-        whiel (head<tail){
+        while (head<tail){
             x=q[++head];
             for (int i=top[x];i;i=next[i]){
                 if (!vis[v[i]){
